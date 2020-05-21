@@ -9,9 +9,10 @@
 import UIKit
 import CoreData
 
-class ViewController: UITableViewController {
+class ViewController: UITableViewController,UIPickerViewDelegate,UIImagePickerControllerDelegate,UISearchBarDelegate {
     var itemArr: [NSManagedObject] = []
-
+    
+    
 //MARK: View Did Load
     @IBOutlet var tablView: UITableView!
     // View Did Load
@@ -102,8 +103,50 @@ class ViewController: UITableViewController {
         }else{
             itemArr[indexPath.row].setValue(true, forKey: "done")
         }
-        tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadData()
-    }
+        tableView.deselectRow(at: indexPath, animated: true)
         
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+           //let request : NSFetchRequest<Item> = Item.fetchRequest()
+           let request = NSFetchRequest<NSManagedObject>(entityName: "Item")
+           let predicatee = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+           request.predicate = predicatee
+           let sortDescriptr = NSSortDescriptor(key: "title", ascending: true)
+           request.sortDescriptors = [sortDescriptr]
+           let appDelegate = UIApplication.shared.delegate as? AppDelegate
+           let managedContext = appDelegate!.persistentContainer.viewContext
+           
+           do{
+                itemArr = try managedContext.fetch(request)
+            print("worked")
+           }catch{
+               print("could not search data")
+           }
+           tableView.reloadData()
+       }
 }
+        
+//
+////MARK: Search Bar Delegate
+//extension ViewController: UISearchBarDelegate{
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        //let request : NSFetchRequest<Item> = Item.fetchRequest()
+//        let request = NSFetchRequest<NSManagedObject>(entityName: "Item")
+//        let predicatee = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+//
+//        request.predicate = predicatee
+//        let sortDescriptr = NSSortDescriptor(key: "title", ascending: true)
+//        request.sortDescriptors = [sortDescriptr]
+//        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+//        let managedContext = appDelegate!.persistentContainer.viewContext
+//
+//        do{
+//             itemArr = try managedContext.fetch(request)
+//        }catch{
+//            print("could not search data")
+//        }
+//        tablView.reloadData()
+//    }
+//
+//}
